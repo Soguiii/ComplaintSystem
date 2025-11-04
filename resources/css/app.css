@@ -1,0 +1,61 @@
+
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+
+/* .bg-blur {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('/images/cityhall.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  filter: blur(8px);
+  z-index: -1;
+} */
+
+
+.content {
+  position: relative;
+  z-index: 1;
+}
+
+body {
+  position: relative;
+  z-index: 0;
+}
+
+main, nav, footer {
+  position: relative;
+  z-index: 1;
+}
+
+
+
+#test1{
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    color: aqua;
+}
+
+
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* keeps it above other elements */
+    background-color: white; /* optional for visibility */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
