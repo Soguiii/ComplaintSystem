@@ -51,6 +51,24 @@
     
 </div>
 
+{{-- Conflict modal: shows when scheduled_at validation error exists --}}
+<div class="modal fade" id="conflictModal" tabindex="-1" aria-labelledby="conflictModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="conflictModalLabel">Scheduling conflict</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="conflictMessage">The selected date/time is already occupied. Please choose another time.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="mb-3">
     <label class="form-label">Status</label>
     <select name="status" class="form-select">
@@ -117,5 +135,27 @@
         
         // Log initial state
         console.log('Form initialized');
+
+        // If there was a server-side validation error for scheduled_at, show the modal
+        try {
+            var scheduleError = @json($errors->first('scheduled_at'));
+        } catch (e) {
+            var scheduleError = null;
+        }
+
+        if (scheduleError) {
+            // set message if available
+            var msgEl = document.getElementById('conflictMessage');
+            if (msgEl) { msgEl.textContent = scheduleError; }
+
+            // Show Bootstrap modal (v5)
+            if (typeof bootstrap !== 'undefined' && document.getElementById('conflictModal')) {
+                var conflictModal = new bootstrap.Modal(document.getElementById('conflictModal'));
+                conflictModal.show();
+            } else {
+                // fallback to alert
+                alert(scheduleError);
+            }
+        }
     });
 </script>

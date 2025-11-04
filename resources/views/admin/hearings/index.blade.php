@@ -17,6 +17,34 @@
 
     <div class="card mb-4">
         <div class="card-body">
+            {{-- Simple calendar view grouped by date --}}
+            @php
+                $grouped = $hearings->groupBy(function($h) {
+                    return $h->scheduled_at ? $h->scheduled_at->format('Y-m-d') : 'unscheduled';
+                });
+            @endphp
+
+            <div class="mb-4">
+                <h5>Calendar</h5>
+                <div class="d-flex flex-wrap gap-3">
+                    @forelse($grouped as $date => $items)
+                        <div class="card p-2" style="min-width:200px; background-color:#e9f7ef; border:1px solid #d4efd8;">
+                            <div class="fw-bold text-success mb-1">{{ $date === 'unscheduled' ? 'Unscheduled' : 
+                                \Carbon\Carbon::parse($date)->format('M d, Y') }}</div>
+                            <ul class="list-unstyled mb-0">
+                                @foreach($items as $h)
+                                    <li style="padding:6px 0; border-bottom:1px dashed rgba(0,0,0,0.05);">
+                                        <div class="small"><strong>{{ $h->scheduled_at ? $h->scheduled_at->format('H:i') : 'TBD' }}</strong> — {{ $h->title }}</div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @empty
+                        <div class="text-muted">No scheduled hearings.</div>
+                    @endforelse
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
@@ -37,7 +65,14 @@
                             <td>{{ $h->complainant ?? 'N/A' }}</td>
                             <td>{{ $h->scheduled_at ? $h->scheduled_at->format('M d, Y') : 'TBD' }}</td>
                             <td>
-                                <span class="badge-status {{ $h->status }}">{{ ucwords(str_replace('_',' ', $h->status)) }}</span>
+                                <div>
+                                    <span class="badge-status {{ $h->status }}">{{ ucwords(str_replace('_',' ', $h->status)) }}</span>
+                                </div>
+                                @if(isset($h->status_changed_at) && $h->status_changed_at)
+                                    <div class="small text-muted mt-1">since {{ $h->status_changed_at->format('M d, Y') }} ({{ $h->status_changed_at->diffForHumans() }})</div>
+                                @else
+                                    <div class="small text-muted mt-1">since {{ $h->created_at->format('M d, Y') }} ({{ $h->created_at->diffForHumans() }})</div>
+                                @endif
                             </td>
                             <td>
                                 <div class="btn-group" role="group">

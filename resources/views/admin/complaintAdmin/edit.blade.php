@@ -8,6 +8,12 @@
                 <div class="card-header brand-green">Edit Complaint</div>
 
                 <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Reference</label>
+                        <div class="p-2" style="background:#f6f6f6;border-radius:6px;">
+                            <div class="ref-plain">{{ $complaint->reference ?? 'N/A' }}</div>
+                        </div>
+                    </div>
                     <form method="POST" action="{{ route('admin.complaints.update', $complaint->id) }}">
                         @csrf
                         @method('PUT')

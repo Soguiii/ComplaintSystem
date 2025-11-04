@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Hearing;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Notifications\HearingScheduled;
+use App\Notifications\HearingStatusChanged;
 
 class HearingController extends Controller
 {
@@ -61,7 +64,38 @@ class HearingController extends Controller
             'status' => 'required|string',
         ]);
 
-        Hearing::create($data);
+        // Check for scheduled_at conflict
+        if (!empty($data['scheduled_at'])) {
+            $conflict = Hearing::where('scheduled_at', $data['scheduled_at'])->exists();
+            if ($conflict) {
+                return back()->withInput()->withErrors(['scheduled_at' => 'Selected date/time is already occupied. Please choose another time.']);
+            }
+        }
+
+        $hearing = Hearing::create($data);
+
+        // If the hearings table has a status_changed_at column, set it on creation
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('hearings', 'status_changed_at')) {
+                $hearing->status_changed_at = now();
+                $hearing->save();
+            }
+        } catch (\Exception $e) {
+            Log::warning('Could not set status_changed_at for hearing: ' . $e->getMessage());
+        }
+
+        // Notify complainant if complaint_id present and has email
+        try {
+            if (!empty($hearing->complaint_id)) {
+                $complaint = \App\Models\Complaint::find($hearing->complaint_id);
+                if ($complaint && !empty($complaint->email)) {
+                    $complaint->notify(new HearingScheduled($hearing));
+                    Log::info('Hearing notification sent to: ' . $complaint->email . ' for hearing ' . $hearing->id);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to notify hearing scheduled: ' . $e->getMessage());
+        }
 
         return redirect()->route('admin.hearings.index')->with('success', 'Hearing scheduled.');
     }
@@ -98,7 +132,44 @@ class HearingController extends Controller
             'status' => 'required|string',
         ]);
 
+        // Capture old values to detect changes
+        $oldStatus = $hearing->status;
+        $oldScheduledAt = $hearing->scheduled_at;
+
+        // If scheduled_at changed, check conflict BEFORE updating
+        if (!empty($data['scheduled_at'])) {
+            $conflict = Hearing::where('scheduled_at', $data['scheduled_at'])->where('id', '!=', $hearing->id)->exists();
+            if ($conflict) {
+                return back()->withInput()->withErrors(['scheduled_at' => 'Selected date/time is already occupied. Please choose another time.']);
+            }
+        }
+
         $hearing->update($data);
+
+        // If complaint exists, notify appropriately depending on what changed
+        try {
+            if (!empty($hearing->complaint_id)) {
+                $complaint = \App\Models\Complaint::find($hearing->complaint_id);
+                if ($complaint && !empty($complaint->email)) {
+                    // If the status changed, record timestamp and send a status-changed notification
+                    if ($oldStatus !== $hearing->status) {
+                        if (\Illuminate\Support\Facades\Schema::hasColumn('hearings', 'status_changed_at')) {
+                            $hearing->status_changed_at = now();
+                            $hearing->save();
+                        }
+
+                        $complaint->notify(new HearingStatusChanged($hearing, $oldStatus ?? 'unknown', $hearing->status));
+                        Log::info('Hearing status change notification sent to: ' . $complaint->email . ' for hearing ' . $hearing->id . ' (' . $oldStatus . ' -> ' . $hearing->status . ')');
+                    } else {
+                        // Otherwise send the updated schedule notification
+                        $complaint->notify(new HearingScheduled($hearing));
+                        Log::info('Hearing update notification sent to: ' . $complaint->email . ' for hearing ' . $hearing->id);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to notify hearing update: ' . $e->getMessage());
+        }
 
         return redirect()->route('admin.hearings.index')->with('success', 'Hearing updated.');
     }

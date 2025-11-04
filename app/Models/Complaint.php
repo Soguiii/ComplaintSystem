@@ -28,13 +28,15 @@ class Complaint extends Model
         'reference',
         'email_verified',
         'verification_token',
-        'status'
+        'status',
+        'status_changed_at',
     ];
 
     protected $casts = [
         'email_verified' => 'boolean',
         'dob' => 'date',
         'email_verified_at' => 'datetime',
+        'status_changed_at' => 'datetime',
     ];
 
     public function hearing()

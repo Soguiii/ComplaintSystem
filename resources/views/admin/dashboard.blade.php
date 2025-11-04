@@ -37,9 +37,12 @@
                     </div>
                 </div>
             <div class="card my-3">
-                <div class="card-header brand-green"></div>
-                <div class="card-body ">
-                <h2>Recent Complaints</h2>
+                <div class="card-header brand-green d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">Recent Complaints</h2>
+                    <form class="d-flex" method="GET" action="{{ route('admin.dashboard') }}">
+                        <input type="text" name="search" class="form-control form-control-sm me-2" placeholder="Search..." value="{{ request('search') }}">
+                        <button class="btn btn-sm btn-outline-primary">Search</button>
+                    </form>
                 </div>
             </div>
 
@@ -54,11 +57,13 @@
                                 <th>Contact</th>
                                 <th>Complaint</th>
                                 <th style="width:120px">Status</th>
+                                <th style="width:140px">Status File Date</th>
+                                <th style="width:120px">Date Filed</th>
                                 <th style="width:80px" class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($recentComplaints ?? [] as $c)
+                            @forelse($recentComplaints as $c)
                                 <tr class="align-middle">
                                     <td class="ps-3"><strong>{{ sprintf('%02d', $c->id) }}</strong></td>
                                     <td>{{ $c->first_name ?? 'N/A' }}</td>
@@ -77,6 +82,16 @@
                                         @endphp
                                         <span class="badge-status {{ $displayClass }}">{{ $displayLabel }}</span>
                                     </td>
+                                    <td>
+                                        @if($c->status_changed_at)
+                                            {{ $c->status_changed_at->timezone(config('app.timezone'))->format('M d, Y H:i') }}
+                                            <div class="small text-muted">({{ $c->status_changed_at->timezone(config('app.timezone'))->diffForHumans() }})</div>
+                                        @else
+                                            {{ optional($c->created_at)->timezone(config('app.timezone'))->format('M d, Y H:i') }}
+                                            <div class="small text-muted">({{ optional($c->created_at)->timezone(config('app.timezone'))->diffForHumans() }})</div>
+                                        @endif
+                                    </td>
+                                    <td>{{ optional($c->created_at)->timezone(config('app.timezone'))->format('M d, Y H:i') }}</td>
                                     <td class="text-center">
                                         <a href="{{ route('admin.complaints.show', $c->id) }}" 
                                            class="btn btn-sm btn-outline-primary rounded-circle" 
@@ -87,13 +102,18 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-4 text-muted">
+                                    <td colspan="9" class="text-center py-4 text-muted">
                                         <i class="fa-regular fa-folder-open me-2"></i>No recent complaints.
                                     </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                {{-- Pagination --}}
+                <div class="d-flex justify-content-center mt-3 mb-3">
+                    {{ $recentComplaints->links('pagination::bootstrap-5') }}
                 </div>
             </div>
         </div>

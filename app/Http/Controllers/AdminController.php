@@ -6,18 +6,30 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-    public function dashboard()
+    public function dashboard(Request $request)
     {
-
         $total = \App\Models\Complaint::count();
         $pending = \App\Models\Complaint::where('status', 'pending')->count();
         $resolved = \App\Models\Complaint::where('status', 'resolved')->count();
         $in_progress = \App\Models\Complaint::where('status', 'in_progress')->count();
         $rejected = \App\Models\Complaint::whereIn('status', ['rejected', 'closed'])->count();
 
-        $recentComplaints = \App\Models\Complaint::latest()->limit(5)->get();
+        // Recent complaints list with optional search and pagination (5 per page)
+        $query = \App\Models\Complaint::latest();
 
-    return view('admin.dashboard', compact('total', 'pending', 'resolved', 'rejected', 'in_progress', 'recentComplaints'));
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function($q) use ($s) {
+                $q->where('reference', 'LIKE', "%{$s}%")
+                  ->orWhere('first_name', 'LIKE', "%{$s}%")
+                  ->orWhere('last_name', 'LIKE', "%{$s}%")
+                  ->orWhere('type', 'LIKE', "%{$s}%");
+            });
+        }
+
+        $recentComplaints = $query->paginate(5)->withQueryString();
+
+        return view('admin.dashboard', compact('total', 'pending', 'resolved', 'rejected', 'in_progress', 'recentComplaints'));
     }
 
     public function complaints(Request $request)
@@ -71,7 +83,11 @@ class AdminController extends Controller
 
     $complaint = \App\Models\Complaint::findOrFail($id);
 
-    $complaint->status = $request->input('status');
+    // detect status change
+    $oldStatus = $complaint->status ?? 'pending';
+    $newStatus = $request->input('status');
+
+    $complaint->status = $newStatus;
     $complaint->type = $request->input('type');
     $complaint->first_name = $request->input('first_name');
     $complaint->middle_name = $request->input('middle_name');
@@ -83,6 +99,24 @@ class AdminController extends Controller
     $complaint->description = $request->input('description');
 
     $complaint->save();
+
+    // If status changed, record timestamp (if column exists) and notify user
+    if ($oldStatus !== $newStatus) {
+        $changedAt = now();
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('complaints', 'status_changed_at')) {
+                $complaint->status_changed_at = $changedAt;
+                $complaint->save();
+            }
+
+            if (!empty($complaint->email)) {
+                // notify via notification and also send direct mail as fallback
+                $complaint->notify(new \App\Notifications\ComplaintStatusChanged($complaint, $oldStatus, $newStatus, $changedAt));
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to notify complaint status change: ' . $e->getMessage());
+        }
+    }
 
     return redirect()->route('admin.complaints')->with('success', 'Complaint updated.');
 }

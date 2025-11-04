@@ -27,7 +27,7 @@
 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-hover align-middle">
                             <thead>
                                 <tr>
                                     <th style="width:130px">Reference</th>
@@ -41,7 +41,7 @@
                             <tbody>
                                 @forelse($complaints as $complaint)
                                     <tr>
-                                        <td class="ref-plain">{{ $complaint->reference }}</td>
+                                        <td class="ref-plain text-wrap" style="white-space:normal">{{ $complaint->reference }}</td>
                                         <td>{{ $complaint->first_name }} {{ $complaint->last_name }}</td>
                                         <td>{{ $complaint->type ?? 'N/A' }}</td>
                                         <td>
@@ -50,18 +50,34 @@
                                                 $displayClass = $st === 'closed' ? 'rejected' : $st;
                                                 $displayLabel = $st === 'closed' ? 'Rejected' : ucwords(str_replace('_', ' ', $st));
                                             @endphp
-                                            <span class="badge-status {{ $displayClass }}">{{ $displayLabel }}</span>
+                                            <div>
+                                                <span class="badge-status {{ $displayClass }}">{{ $displayLabel }}</span>
+                                            </div>
+                                            @if($complaint->status_changed_at)
+                                                <div class="small text-muted mt-1">since {{ $complaint->status_changed_at->timezone(config('app.timezone'))->format('M d, Y') }} ({{ $complaint->status_changed_at->timezone(config('app.timezone'))->diffForHumans() }})</div>
+                                            @else
+                                                {{-- fallback: show when the complaint was created as the status date --}}
+                                                <div class="small text-muted mt-1">since {{ $complaint->created_at->timezone(config('app.timezone'))->format('M d, Y') }} ({{ $complaint->created_at->timezone(config('app.timezone'))->diffForHumans() }})</div>
+                                            @endif
                                         </td>
-                                        <td>{{ $complaint->created_at->format('M d, Y') }}</td>
                                         <td>
-                                            <div class="btn-group" role="group">
+                                            @if($complaint->status_changed_at)
+                                                {{ $complaint->status_changed_at->timezone(config('app.timezone'))->format('M d, Y') }}
+                                                <div class="small text-muted">({{ $complaint->status_changed_at->timezone(config('app.timezone'))->diffForHumans() }})</div>
+                                            @else
+                                                {{ $complaint->created_at->timezone(config('app.timezone'))->format('M d, Y') }}
+                                                <div class="small text-muted">({{ $complaint->created_at->timezone(config('app.timezone'))->diffForHumans() }})</div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="d-flex gap-2">
                                                 <a href="{{ route('admin.complaints.show', $complaint->id) }}" 
-                                                   class="btn btn-sm btn-outline-primary" 
+                                                   class="btn action-icon btn-outline-primary" 
                                                    title="View Details">
                                                     <i class="fa fa-eye"></i>
                                                 </a>
                                                 <a href="{{ route('admin.complaints.edit', $complaint->id) }}" 
-                                                   class="btn btn-sm btn-outline-success" 
+                                                   class="btn action-icon btn-outline-success" 
                                                    title="Edit">
                                                     <i class="fa fa-edit"></i>
                                                 </a>
@@ -72,7 +88,7 @@
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" 
-                                                            class="btn btn-sm btn-outline-danger" 
+                                                            class="btn action-icon btn-outline-danger" 
                                                             title="Delete">
                                                         <i class="fa fa-trash"></i>
                                                     </button>
@@ -82,7 +98,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center py-4">
+                                        <td colspan="7" class="text-center py-4">
                                             <i class="fa fa-folder-open me-2"></i>No active complaints found
                                         </td>
                                     </tr>
@@ -143,6 +159,23 @@
 .table > :not(caption) > * > * {
     padding: 1rem 0.75rem;
 }
+
+/* alternate row background like the screenshot */
+tbody tr:nth-child(odd) {
+    background-color: #f6f6f6;
+}
+
+/* compact square action buttons */
+.action-icon {
+    width: 36px;
+    height: 36px;
+    padding: 0.45rem 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+.action-icon i { font-size: 0.9rem; }
 
 /* Pagination styling */
 .pagination {

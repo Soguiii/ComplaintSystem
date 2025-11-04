@@ -16,12 +16,14 @@ class Hearing extends Model
         'complaint_id',
         'contact',
         'scheduled_at',
+        'status_changed_at',
         'details',
         'status',
     ];
 
     protected $casts = [
         'scheduled_at' => 'datetime',
+        'status_changed_at' => 'datetime',
     ];
 
     public function complaint()
