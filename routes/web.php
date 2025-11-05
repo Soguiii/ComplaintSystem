@@ -37,6 +37,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/files', [AdminController::class, 'allFile'])->name('all_files');
         Route::get('/contacts', [AdminController::class, 'directContacts'])->name('direct_contacts');
     Route::get('/schedule', [AdminController::class, 'hearingSchedule'])->name('hearing_schedule');
+	
+	Route::get('/select-role', [AdminController::class, 'selectRole'])->name('selectRole');
+    Route::post('/set-role', [AdminController::class, 'setRole'])->name('setRole');
+	
     // Hearings CRUD (admin)
     Route::resource('hearings', HearingController::class);
         Route::post('/complaints/reset', [AdminController::class, 'resetComplaints'])->name('complaints.reset');

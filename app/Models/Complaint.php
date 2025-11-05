@@ -10,11 +10,6 @@ class Complaint extends Model
 {
     use HasFactory, Notifiable;
 
-    /**
-     * Mass assignable attributes
-     *
-     * Note: we include verification/reference fields used elsewhere in the app.
-     */
     protected $fillable = [
         'first_name',
         'middle_name',
@@ -42,5 +37,17 @@ class Complaint extends Model
     public function hearing()
     {
         return $this->hasOne(Hearing::class);
+    }
+
+    public static function getSeverityOrder()
+    {
+        return [
+            'Barangay Official Conduct',
+            'Tanod Misconduct',
+            'Domestic Conflict',
+            'Land/Property Dispute',
+            'Noise Disturbance',
+            'Others',
+        ];
     }
 }
