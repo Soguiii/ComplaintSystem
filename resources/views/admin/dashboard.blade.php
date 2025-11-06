@@ -31,8 +31,15 @@
                     </div>
                     <div class="col">
                         <div class="card shadow rounded p-4 bg-success">
-                            <h4 class="card-title text-white">Completed</h4>
-                            <h1 class="card-text text-white">{{ ($rejected + $resolved) ?? 0 }}</span></h1>
+                            <h4 class="card-title text-white">Resolved</h4>
+                            <h1 class="card-text text-white">{{ ($resolved) ?? 0 }}</span></h1>
+                        </div>
+                    </div>
+
+                    <div class="col">
+                        <div class="card shadow rounded p-4 bg-danger">
+                            <h4 class="card-title text-white">Rejected</h4>
+                            <h1 class="card-text text-white">{{ ($rejected) ?? 0 }}</span></h1>
                         </div>
                     </div>
                 </div>

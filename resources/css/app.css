@@ -1,61 +1,432 @@
-
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
-
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+html, body {
+  margin: 0;
+  padding: 0;
 }
 
-
-/* .bg-blur {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-image: url('/images/cityhall.jpg');
-  background-size: cover;
-  background-repeat: no-repeat;
-  filter: blur(8px);
-  z-index: -1;
-} */
-
-
-.content {
-  position: relative;
-  z-index: 1;
+/* Sidebar styles */
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-body {
-  position: relative;
-  z-index: 0;
+.sidebar.collapsed {
+    margin-left: -250px;
 }
 
-main, nav, footer {
-  position: relative;
-  z-index: 1;
+.sidebar-nav {
+    list-style: none;
+    padding: 0.5rem 0;
+    margin: 0;
 }
 
-
-
-#test1{
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    color: aqua;
+.sidebar-nav .nav-link {
+    padding: 0.8rem 1.5rem;
+    color: #4a5568;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
 }
 
+.sidebar-nav .nav-link i {
+    width: 24px;
+    text-align: center;
+    font-size: 1.2rem;
+    color: #4299e1;
+    margin-right: 12px;
+}
 
-nav {
+.sidebar-nav .nav-link span {
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.sidebar-nav .nav-link:hover {
+    background-color: #edf2f7;
+    color: #2b6cb0;
+}
+
+.sidebar-nav .nav-link:hover i {
+    color: #2b6cb0;
+}
+
+.sidebar-nav .nav-link.active {
+    background-color: #ebf8ff;
+    color: #2b6cb0;
+    font-weight: 600;
+}
+
+.sidebar-nav .nav-link.active i {
+    color: #3182ce;
+}
+
+/* Content wrapper */
+.content-wrapper {
+    flex: 1;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+/* Wrapper */
+.wrapper {
+    min-height: 100vh;
+}
+
+/* Sidebar toggle button */
+.sidebar-toggler {
+    background: none;
+    border: none;
+    padding: 8px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #4a5568;
+    transition: color 0.2s ease;
+}
+
+.sidebar-toggler:hover {
+    color: #2b6cb0;
+}
+
+.sidebar-toggler i {
+    font-size: 1.25rem;
+}
+
+/* Make the main content full width when sidebar is collapsed */
+.sidebar-collapsed .content-wrapper {
+    margin-left: 0;
+}
+
+/* Navbar */
+.navbar {
     position: sticky;
     top: 0;
-    z-index: 1000; /* keeps it above other elements */
-    background-color: white; /* optional for visibility */
+    z-index: 1000;
+}
+
+.navbar-brand img {
+    height: 50px;
+    width: 50px;
+    object-fit: contain;
+}
+
+.brgy-title {
+    font-family: "Bebas Neue", sans-serif;
+    font-weight: bold;
+    font-size: 1.5rem;
+    white-space: nowrap;
+    color: #333;
+}
+
+/* Footer */
+footer {
+    margin: 0;
+    background-color: #ccc;
+    z-index: 1000;
+    width: 100%;
+    text-align: center;
+    padding: 1rem;
+}
+
+
+/* Fix dropdown positioning */
+.navbar-nav .dropdown-menu {
+    position: absolute;
+    right: 0;
+    left: auto;
+    min-width: 200px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive fixes */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        padding: 1rem 0;
+    }
+    
+    .navbar-nav .dropdown-menu {
+        position: static;
+        float: none;
+        width: auto;
+        box-shadow: none;
+        border: none;
+        background-color: #f8f9fa;
+        margin: 0.5rem 0;
+    }
+
+    .vertical-divider {
+        display: none;
+    }
 }
 
 * {
   margin: 0;
   padding: 0;
 }
+
+/* Admin Layout Styles */
+.wrapper {
+    min-height: 100vh;
+    width: 100%;
+}
+
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.sidebar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-nav .nav-item {
+    margin: 5px 0;
+}
+
+.sidebar-nav .nav-link {
+    padding: 12px 20px;
+    color: #333;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+.sidebar-nav .nav-link:hover,
+.sidebar-nav .nav-link.active {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+}
+
+.content-wrapper {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.main-content {
+    padding: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        margin-left: -250px;
+    }
+    
+    .sidebar.show {
+        margin-left: 0;
+    }
+    
+    .content-wrapper {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+/* Navbar styles */
+.navbar {
+    padding: 0.5rem 1rem;
+}
+
+/* Dropdown styles */
+.dropdown-menu {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+}
+
+/* Main content area */
+.main-content {
+    background-color: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Brand green accent for admin actions */
+:root {
+    --brand-green: #1f6f3a; /* dark green hint */
+    --brand-green-600: #155724;
+}
+
+.btn-green {
+    background-color: var(--brand-green);
+    border-color: var(--brand-green);
+    color: #fff;
+}
+.btn-green:hover, .btn-green:focus {
+    background-color: var(--brand-green-600);
+    border-color: var(--brand-green-600);
+    color: #fff;
+}
+.btn-green-outline {
+    background: transparent;
+    color: var(--brand-green);
+    border: 1px solid var(--brand-green);
+}
+.btn-green-outline:hover {
+    background-color: rgba(31,111,58,0.08);
+}
+
+.badge-status {
+    padding: 0.35rem 0.6rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.badge-status.pending { background: #6c757d; color: #fff; } /* gray */
+.badge-status.in_progress { background: #f0ad4e; color: #212529; } /* orange */
+.badge-status.resolved { background: var(--brand-green); color: #fff; } /* green */
+.badge-status.rejected { background: #343a40; color: #fff; } /* dark / rejected */
+
+.card-header.brand-green {
+    background: linear-gradient(90deg, rgba(31,111,58,0.12), rgba(31,111,58,0.02));
+    border-bottom: 1px solid rgba(31,111,58,0.08);
+}
+
+.table-header-green {
+    /* plain white header (no green accent) */
+    background-color: #ffffff;
+    border: none;
+    border-radius: 6px;
+}
+
+/* Zebra striping for table body: white / slightly darker white */
+.table tbody tr {
+    background-color: #ffffff; /* primary row color */
+}
+.table tbody tr:nth-child(even) {
+    background-color: #f7f7f7; /* subtle darker white */
+}
+
+/* Complaint row container - remove green left border and keep subtle card spacing */
+.complaint-row {
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: transparent;
+    border-left: none;
+}
+
+/* Add a subtle bottom border between rows and tighten spacing like the reference */
+.table tbody tr.complaint-row {
+    border-bottom: 1px solid #e9ecef;
+}
+.table tbody tr.complaint-row td {
+    padding: 12px 10px;
+    vertical-align: middle;
+}
+.table tbody tr.complaint-row .row-no {
+    background: #f1f5f9;
+    border: 1px solid rgba(0,0,0,0.04);
+}
+
+/* Make header plain white and remove extra radius on header row */
+.table thead tr.table-header-green {
+    background-color: #ffffff;
+    border-radius: 0;
+}
+
+/* Reference: show as single inline line, no wrapping. Use monospace and ellipsis for overflow. */
+.ref-plain {
+    white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;
+    font-size: 0.95rem;
+    color: #212529;
+    max-width: 220px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
+.row-no {
+    background: #f1f5f9;
+    border: 1px solid rgba(31,111,58,0.12);
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: inline-block;
+    min-width: 36px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.btn-green-outline {
+    background: transparent;
+    color: var(--brand-green);
+    border: 1px solid var(--brand-green);
+}
+.btn-green-outline:hover {
+    background: rgba(31,111,58,0.06);
+}
+
+.btn-green {
+    background: var(--brand-green);
+    color: #fff;
+    border: 1px solid var(--brand-green);
+}
+.btn-green:hover {
+    background: var(--brand-green-600);
+}
+
+/* compact table spacing */
+.table-borderless td, .table-borderless th { vertical-align: middle; }
+
+/* Action icon buttons (compact square) */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    color: #fff;
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.06);
+    font-size: 0.95rem;
+}
+.action-btn + .action-btn { margin-left: 6px; }
+.action-view { background: #00a3ff; }
+.action-view:hover { background: #008cd6; }
+.action-edit { background: #ffc107; color: #212529; }
+.action-edit:hover { background: #e0a800; }
+.action-delete { background: #ff4d4f; }
+.action-delete:hover { background: #e04345; }
+
+/* Make header compact like reference */
+.card .card-header {
+    padding: 0.6rem 1rem;
+    background-color: #f8f9fb;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+/* Row subtle separators (kept minimal) */
+.complaint-row { margin-bottom: 8px; padding: 8px 12px; border-radius: 6px; }
+
+

@@ -29,6 +29,7 @@ Auth::routes();
 Route::middleware(['auth'])->group(function () { 
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/activity-logs', [AdminController::class, 'activityLogs'])->name('activity_logs');
         Route::get('/complaints', [AdminController::class, 'complaints'])->name('complaints');
             Route::get('/complaints/{id}/edit', [AdminController::class, 'editComplaint'])->name('complaints.edit');
             Route::put('/complaints/{id}', [AdminController::class, 'updateComplaint'])->name('complaints.update');

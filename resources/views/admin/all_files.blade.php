@@ -35,15 +35,16 @@
                                     <th style="width:130px">Reference</th>
                                     <th>Name</th>
                                     <th>Type</th>
-                                    <th style="width:120px">Status</th>
-                                    <th style="width:120px">Date Filed</th>
-                                    <th style="width:180px">Actions</th>
+                                    <th >Status</th>
+                                    <th >Status Filed</th>
+                                    <th>Date Filed</th>
+                                    <th >Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($complaints as $complaint)
                                     <tr>
-                                        <td class="ref-plain text-wrap" style="white-space:normal">{{ $complaint->reference }}</td>
+                                        <td style="white-space:normal; font-family: 'Roboto Mono', monospace;">{{ $complaint->reference }}</td>
                                         <td>{{ $complaint->first_name }} {{ $complaint->last_name }}</td>
                                         <td>{{ $complaint->type ?? 'N/A' }}</td>
                                         <td>
@@ -55,7 +56,11 @@
                                             <div>
                                                 <span class="badge-status {{ $displayClass }}">{{ $displayLabel }}</span>
                                             </div>
-                                            @if($complaint->status_changed_at)
+                                            
+                                        </td>
+
+                                        <td>
+                                        @if($complaint->status_changed_at)
                                                 <div class="small text-muted mt-1">since {{ $complaint->status_changed_at->timezone(config('app.timezone'))->format('M d, Y') }} ({{ $complaint->status_changed_at->timezone(config('app.timezone'))->diffForHumans() }})</div>
                                             @else
                                                 <div class="small text-muted mt-1">since {{ $complaint->created_at->timezone(config('app.timezone'))->format('M d, Y') }} ({{ $complaint->created_at->timezone(config('app.timezone'))->diffForHumans() }})</div>

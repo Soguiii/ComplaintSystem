@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Notifications\HearingScheduled;
 use App\Notifications\HearingStatusChanged;
+use App\Models\ActivityLog;
+use Illuminate\Support\Facades\Auth;
 
 class HearingController extends Controller
 {
@@ -73,6 +75,24 @@ class HearingController extends Controller
         }
 
         $hearing = Hearing::create($data);
+
+        // Log that a hearing was created (scheduled)
+        try {
+            ActivityLog::create([
+                'role' => session('current_role') ?? 'Unknown',
+                'hearing_id' => $hearing->id,
+                'complaint_id' => $hearing->complaint_id ?? null,
+                'action' => 'schedule_hearing',
+                'ip' => request()->ip(),
+                'user_agent' => request()->header('User-Agent'),
+                'details' => json_encode([
+                    'scheduled_at' => $hearing->scheduled_at ? $hearing->scheduled_at->toDateTimeString() : null,
+                    'title' => $hearing->title,
+                ]),
+            ]);
+        } catch (\Exception $e) {
+            Log::warning('Failed to record activity log (schedule_hearing): ' . $e->getMessage());
+        }
 
         // If the hearings table has a status_changed_at column, set it on creation
         try {
@@ -177,6 +197,23 @@ class HearingController extends Controller
     public function destroy($id)
     {
         $hearing = Hearing::findOrFail($id);
+        $title = $hearing->title ?? null;
+
+        // Log deletion BEFORE removing the hearing so FK references are valid
+        try {
+            ActivityLog::create([
+                'role' => session('current_role') ?? 'Unknown',
+                'hearing_id' => $id,
+                'complaint_id' => $hearing->complaint_id ?? null,
+                'action' => 'delete_hearing',
+                'ip' => request()->ip(),
+                'user_agent' => request()->header('User-Agent'),
+                'details' => $title,
+            ]);
+        } catch (\Exception $e) {
+            Log::warning('Failed to record activity log (delete_hearing): ' . $e->getMessage());
+        }
+
         $hearing->delete();
 
         return redirect()->route('admin.hearings.index')->with('success', 'Hearing deleted.');

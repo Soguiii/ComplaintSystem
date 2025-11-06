@@ -6,3 +6,6 @@
 
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
+
+/* Import custom plain CSS so Vite bundles our app.css rules */
+@import '../css/app.css';

@@ -5,9 +5,10 @@
     <title>@yield('title', 'My Laravel App')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    @vite('resources/css/app.css')
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    @vite(['resources/js/app.js', 'resources/sass/app.scss'])
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 <div style="
   position: fixed;
   top: 0;
@@ -20,6 +21,7 @@
   filter: blur(8px);
   z-index: -1;">
 </div>
+<div class="bg-overlay"></div>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow sticky-top">
     <div class="container">
@@ -70,16 +72,15 @@
                     @endif 
                 @else 
                     <li class="nav-item dropdown"> 
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"> 
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"> 
                             {{ Auth::user()->name }} 
                         </a> 
-                        <ul class="dropdown-menu"> 
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown"> 
                             <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">Admin Dashboard</a></li>
                             <li><hr class="dropdown-divider"></li> 
                             <li> 
                                 <a class="dropdown-item" href="{{ route('logout') }}" 
-                                   onclick="event.preventDefault(); 
-                                                 document.getElementById('logout-form').submit();"> 
+                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();"> 
                                     Logout 
                                 </a> 
                                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none"> 
@@ -94,8 +95,8 @@
     </div>
 </nav>
 
-<main class="container mt-4"> 
-        @yield('content') 
+<main class="container mt-4 flex-fill"> 
+    @yield('content') 
 </main>
 
 <footer class="bg-light text-center">
@@ -104,7 +105,6 @@
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 @stack('scripts')
 </body>
 </html>

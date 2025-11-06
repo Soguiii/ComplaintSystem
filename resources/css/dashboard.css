@@ -70,7 +70,15 @@
 .table tbody tr:hover { background-color: #f8f9fa; }
 .text-truncate { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.ref-plain { white-space: normal; word-break: break-word; max-width: 130px; }
+.ref-plain {
+  font-family: monospace;
+  /* Keep the reference on a single line and truncate with ellipsis when too long */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+  display: inline-block;
+}
 
 /* compact square action buttons */
 .action-icon { width: 36px; height: 36px; padding: 0.45rem 0.5rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; }
@@ -83,17 +91,3 @@
 .sidebar .nav-link:focus { outline: 2px solid rgba(13,110,253,0.18); outline-offset: 2px; }
 
 /* End dashboard.css */
-
-/* Dashboard table enhancements */
-.table > :not(caption) > * > * {
-    padding: 1rem 0.75rem;
-}
-.navbar .dropdown-menu { min-width: 190px; }
-.navbar { overflow: visible !important; }
-.navbar .dropdown-menu { z-index: 3000; box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
-
-.sidebar.collapsed .sidebar-brand { text-align: center; }
-
-.dropdown-menu {
-    z-index: 1055 !important;
-}

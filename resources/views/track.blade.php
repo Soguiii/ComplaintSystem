@@ -37,34 +37,6 @@
           <div class="form-text">Enter your reference code if you have one, or search by name below</div>
         </div>
       </div>
-
-      <div class="row mb-3">
-        <div class="col-md-6 mb-3 mb-md-0">
-          <label for="first_name" class="form-label">First Name:</label>
-          <input type="text" 
-                 name="first_name" 
-                 id="first_name"
-                 value="{{ old('first_name') }}" 
-                 placeholder="First Name" 
-                 class="form-control @error('first_name') is-invalid @enderror">
-          @error('first_name')
-            <div class="invalid-feedback">{{ $message }}</div>
-          @enderror
-        </div>
-        <div class="col-md-6">
-          <label for="last_name" class="form-label">Last Name</label>
-          <input type="text" 
-                 name="last_name" 
-                 id="last_name"
-                 value="{{ old('last_name') }}" 
-                 placeholder="Last Name" 
-                 class="form-control @error('last_name') is-invalid @enderror">
-          @error('last_name')
-            <div class="invalid-feedback">{{ $message }}</div>
-          @enderror
-        </div>
-      </div>
-
       <button type="submit" class="btn btn-primary">Track Complaint</button>
     </form>
   </div>

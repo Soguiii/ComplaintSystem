@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\ActivityLog;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -76,12 +78,38 @@ class AdminController extends Controller
     public function editComplaint($id)
     {
         $complaint = \App\Models\Complaint::findOrFail($id);
+        // Log that the edit form was opened
+        try {
+            ActivityLog::create([
+                'role' => session('current_role') ?? 'Unknown',
+                'complaint_id' => $complaint->id,
+                'action' => 'open_edit',
+                'ip' => request()->ip(),
+                'user_agent' => request()->header('User-Agent'),
+                'details' => null,
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Failed to record activity log (open_edit): ' . $e->getMessage());
+        }
         return view('admin.complaintAdmin.edit', compact('complaint'));
     }
 
     public function showComplaint($id)
     {
         $complaint = \App\Models\Complaint::findOrFail($id);
+        // Log that the complaint was viewed
+        try {
+            ActivityLog::create([
+                'role' => session('current_role') ?? 'Unknown',
+                'complaint_id' => $complaint->id,
+                'action' => 'view',
+                'ip' => request()->ip(),
+                'user_agent' => request()->header('User-Agent'),
+                'details' => null,
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Failed to record activity log (view): ' . $e->getMessage());
+        }
         return view('admin.complaintAdmin.show', compact('complaint'));
     }
 
@@ -100,7 +128,7 @@ class AdminController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $complaint = \App\Models\Complaint::findOrFail($id);
+    $complaint = \App\Models\Complaint::findOrFail($id);
 
         $oldStatus = $complaint->status ?? 'pending';
         $newStatus = $request->input('status');
@@ -131,12 +159,45 @@ class AdminController extends Controller
             }
         }
 
+            // Log the update action with basic metadata
+            try {
+                ActivityLog::create([
+                    'role' => session('current_role') ?? 'Unknown',
+                    'complaint_id' => $complaint->id,
+                    'action' => 'update',
+                    'ip' => request()->ip(),
+                    'user_agent' => request()->header('User-Agent'),
+                    'details' => json_encode([
+                        'old_status' => $oldStatus,
+                        'new_status' => $newStatus,
+                    ]),
+                ]);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('Failed to record activity log (update): ' . $e->getMessage());
+            }
+
         return redirect()->route('admin.complaints')->with('success', 'Complaint updated.');
     }
 
     public function destroyComplaint($id)
     {
         $complaint = \App\Models\Complaint::findOrFail($id);
+        $ref = $complaint->reference ?? null;
+
+        // Log deletion BEFORE removing the complaint so foreign keys remain valid
+        try {
+            ActivityLog::create([
+                'role' => session('current_role') ?? 'Unknown',
+                'complaint_id' => $id,
+                'action' => 'delete_complaint',
+                'ip' => request()->ip(),
+                'user_agent' => request()->header('User-Agent'),
+                'details' => $ref,
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Failed to record activity log (delete_complaint): ' . $e->getMessage());
+        }
+
         $complaint->delete();
 
         return redirect()->route('admin.complaints')->with('success', 'Complaint deleted.');
@@ -182,6 +243,19 @@ class AdminController extends Controller
 
         $complaints = $query->paginate(10)->withQueryString();
         return view('admin.all_files', compact('complaints'));
+    }
+
+    public function activityLogs(Request $request)
+    {
+        // only eager-load relations that exist on the model (we use role instead of user_id now)
+        $query = ActivityLog::with(['complaint', 'hearing'])->orderBy('created_at', 'desc');
+
+        if ($request->filled('action')) {
+            $query->where('action', $request->action);
+        }
+
+        $logs = $query->paginate(10)->withQueryString();
+        return view('admin.activity_logs.index', compact('logs'));
     }
 
     public function directContacts()

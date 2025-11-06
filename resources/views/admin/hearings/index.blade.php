@@ -60,7 +60,7 @@
                     <tbody>
                         @forelse($hearings as $h)
                         <tr>
-                            <td class="ref-plain">H-{{ sprintf('%04d', $h->id) }}</td>
+                            <td style="white-space:normal; font-family: 'Roboto Mono', monospace;">H-{{ sprintf('%04d', $h->id) }}</td>
                             <td>{{ $h->title }}</td>
                             <td>{{ $h->complainant ?? 'N/A' }}</td>
                             <td>{{ $h->scheduled_at ? $h->scheduled_at->format('M d, Y') : 'TBD' }}</td>
