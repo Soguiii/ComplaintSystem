@@ -34,7 +34,7 @@
           @error('reference')
             <div class="invalid-feedback">{{ $message }}</div>
           @enderror
-          <div class="form-text">Enter your reference code if you have one, or search by name below</div>
+          <div class="form-text">Enter your reference code if you have one</div>
         </div>
       </div>
       <button type="submit" class="btn btn-primary">Track Complaint</button>
